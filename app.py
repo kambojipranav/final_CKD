@@ -154,6 +154,6 @@ if submitted:
 st.markdown("""
     <hr>
     <div style='text-align: center;'>
-        <small>Made with ❤️ | CKD Predictor App &copy; 2025</small>
+        <big>Made with ❤️ | Kamboji Pranav The King &copy; All ways</big>
     </div>
 """, unsafe_allow_html=True)
