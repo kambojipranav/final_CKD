@@ -1,3 +1,4 @@
+![ChatGPT Image Jun 19, 2025, 12_55_25 AM](https://github.com/user-attachments/assets/66355c78-efed-4129-a5e8-d62bd9567304)
 # 🧠 Chronic Kidney Disease (CKD) Prediction App
 
 This Streamlit web app predicts the risk of Chronic Kidney Disease using clinical and demographic data. It features:
@@ -23,5 +24,3 @@ This Streamlit web app predicts the risk of Chronic Kidney Disease using clinica
 ![image](https://github.com/user-attachments/assets/fc67fe7f-d4a2-43ab-8587-442d766b21ae)
 
 ![image](https://github.com/user-attachments/assets/568042b8-0b2e-48de-8182-0cdd978d0168)
-
-![ChatGPT Image Jun 19, 2025, 12_55_25 AM](https://github.com/user-attachments/assets/66355c78-efed-4129-a5e8-d62bd9567304)
