@@ -5,8 +5,71 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 
+# -------------------- LANGUAGE SUPPORT --------------------
+lang_options = {'English': 'en', 'Hindi': 'hi', 'Telugu': 'te'}
+language = st.sidebar.selectbox("🌐 Choose Language", list(lang_options.keys()))
+lang_code = lang_options[language]
+
+translations = {
+    'en': {
+        'title': "Chronic Kidney Disease Predictor",
+        'subtitle': "Enter patient details below to assess the risk",
+        'age': "Age", 'bp': "Blood Pressure", 'sg': "Specific Gravity",
+        'al': "Albumin", 'su': "Sugar", 'bgr': "Blood Glucose Random", 
+        'bu': "Blood Urea", 'sc': "Serum Creatinine", 'sod': "Sodium", 
+        'pot': "Potassium", 'hemo': "Hemoglobin", 'pcv': "Packed Cell Volume", 
+        'wc': "WBC Count", 'rc': "RBC Count", 'rbc': "Red Blood Cells", 
+        'pc': "Pus Cell", 'pcc': "Pus Cell Clumps", 'ba': "Bacteria", 
+        'htn': "Hypertension", 'dm': "Diabetes Mellitus", 'cad': "Coronary Artery Disease", 
+        'appet': "Appetite", 'pe': "Pedal Edema", 'ane': "Anemia",
+        'predict': "🔍 Predict", 'risk': "Kidney Disease Risk",
+        'low': "🟢 Low Risk — Regular monitoring advised.",
+        'med': "🟡 Moderate Risk — Recommend follow-up tests.",
+        'high': "🔴 High Risk — Urgent medical attention recommended.",
+        'precaution': "📝 Precaution: Manage diabetes and blood pressure, follow a kidney-friendly diet, stay active, and avoid smoking."
+    },
+    'hi': {
+        'title': "क्रॉनिक किडनी रोग पूर्वानुमान",
+        'subtitle': "जोखिम का आकलन करने के लिए नीचे विवरण भरें",
+        'age': "आयु", 'bp': "रक्तचाप", 'sg': "विशिष्ट गुरुत्वाकर्षण",
+        'al': "एलबुमिन", 'su': "शुगर", 'bgr': "ब्लड ग्लूकोज", 
+        'bu': "ब्लड यूरिया", 'sc': "सीरम क्रिएटिनिन", 'sod': "सोडियम", 
+        'pot': "पोटेशियम", 'hemo': "हीमोग्लोबिन", 'pcv': "पैक्ड सेल वॉल्यूम", 
+        'wc': "डब्ल्यूबीसी गिनती", 'rc': "आरबीसी गिनती", 'rbc': "लाल रक्त कोशिकाएं", 
+        'pc': "पुस सेल", 'pcc': "पुस क्लंप", 'ba': "बैक्टीरिया", 
+        'htn': "हाई ब्लड प्रेशर", 'dm': "मधुमेह", 'cad': "कोरोनरी आर्टरी डिजीज", 
+        'appet': "भूख", 'pe': "पैरों में सूजन", 'ane': "अनीमिया",
+        'predict': "🔍 पूर्वानुमान करें", 'risk': "किडनी रोग जोखिम",
+        'low': "🟢 कम जोखिम — नियमित निगरानी की सिफारिश की जाती है।",
+        'med': "🟡 मध्यम जोखिम — अतिरिक्त परीक्षण की सिफारिश की जाती है।",
+        'high': "🔴 उच्च जोखिम — तत्काल चिकित्सा सलाह आवश्यक है।",
+        'precaution': "📝 सावधानी: मधुमेह और रक्तचाप को नियंत्रित करें, किडनी के अनुकूल आहार लें, सक्रिय रहें और धूम्रपान से बचें।"
+    },
+    'te': {
+        'title': "దీర్ఘకాల కిడ్నీ వ్యాధి అంచనా",
+        'subtitle': "రిస్క్ అంచనా వేసేందుకు వివరాలు నమోదు చేయండి",
+        'age': "వయస్సు", 'bp': "బ్లడ్ ప్రెజర్", 'sg': "స్పెసిఫిక్ గ్రావిటీ",
+        'al': "అల్బ్యూమిన్", 'su': "షుగర్", 'bgr': "బ్లడ్ గ్లూకోజ్", 
+        'bu': "బ్లడ్ యూరియా", 'sc': "సీరమ్ క్రియాటినిన్", 'sod': "సోడియం", 
+        'pot': "పొటాషియం", 'hemo': "హిమోగ్లోబిన్", 'pcv': "ప్యాక్డ్ సెల్ వాల్యూమ్", 
+        'wc': "డబ్ల్యూబీసీ కౌంట్", 'rc': "ఆర్బీసీ కౌంట్", 'rbc': "ఎర్ర రక్తకణాలు", 
+        'pc': "పస్ సెల్", 'pcc': "పస్ క్లంప్స్", 'ba': "బాక్టీరియా", 
+        'htn': "హై బీపీ", 'dm': "డయాబెటిస్", 'cad': "కోరోనరీ ఆర్టరీ వ్యాధి", 
+        'appet': "ఆహారం ఇష్టం", 'pe': "కాళ్ళ వాపు", 'ane': "అనీమియా",
+        'predict': "🔍 అంచనా వేయి", 'risk': "కిడ్నీ వ్యాధి ప్రమాదం",
+        'low': "🟢 తక్కువ ప్రమాదం — సాధారణంగా పర్యవేక్షణ అవసరం.",
+        'med': "🟡 మధ్యస్థ ప్రమాదం — పరీక్షలు చేయించుకోవాలి.",
+        'high': "🔴 ఎక్కువ ప్రమాదం — వెంటనే వైద్య సేవలు అవసరం.",
+        'precaution': "📝 జాగ్రత్తలు: షుగర్ మరియు బీపీ నియంత్రించండి, కిడ్నీకి అనుకూలమైన ఆహారం తీసుకోండి, చురుకుగా ఉండండి మరియు పొగతాగడం నివారించండి."
+    }
+}
+
+def t(key):
+    return translations[lang_code].get(key, key)
+
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="CKD Predictor", page_icon="🧬", layout="centered")
+
 st.markdown("""
     <style>
         .stApp {
@@ -34,21 +97,8 @@ st.markdown("""
         .stMetricLabel, .stMetricValue {
             color: #ffffff !important;
         }
-        .lang-option {
-            margin-top: 10px;
-        }
     </style>
 """, unsafe_allow_html=True)
-
-# -------------------- SIDEBAR --------------------
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/1040/1040230.png", width=100)
-    st.title("ℹ️ About")
-    st.write("This app predicts Chronic Kidney Disease (CKD) based on user input.")
-    st.markdown("---")
-    lang = st.selectbox("🌐 Choose Language", ["English", "हिंदी"], key="lang")
-    st.markdown("---")
-    st.caption("Made with ❤️ by Pranav Kamboji")
 
 # -------------------- DATA PREP --------------------
 df = pd.read_csv("kidney_disease.csv")
@@ -62,9 +112,10 @@ encode_map = {
 }
 df.replace(encode_map, inplace=True)
 
-X = df[['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr',
-       'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc', 'htn', 'dm', 'cad',
-       'appet', 'pe', 'ane']]
+X = df[[
+    'age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr',
+    'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc',
+    'htn', 'dm', 'cad', 'appet', 'pe', 'ane']]
 y = LabelEncoder().fit_transform(df['classification'])
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -74,86 +125,54 @@ X_train_scaled = scaler.fit_transform(X_train)
 model = RandomForestClassifier()
 model.fit(X_train_scaled, y_train)
 
-# -------------------- TITLE --------------------
-st.markdown("""
-    <h1>🎑️ Chronic Kidney Disease Predictor</h1>
-    <h4>Enter patient details below to assess the risk</h4>
-""", unsafe_allow_html=True)
-
 # -------------------- FORM --------------------
+st.title(t("title"))
+st.caption(t("subtitle"))
+
 with st.form("prediction_form"):
-    st.markdown("### 🧕 Demographics & Basic Info")
-    age = st.slider("Age", 1, 100, 45)
-    bp = st.slider("Blood Pressure", 50, 180, 80)
-    sg = st.selectbox("Specific Gravity", [1.005, 1.010, 1.015, 1.020, 1.025])
+    age = st.slider(t("age"), 1, 100, 45)
+    bp = st.slider(t("bp"), 50, 180, 80)
+    sg = st.selectbox(t("sg"), [1.005, 1.010, 1.015, 1.020, 1.025])
+    al = st.slider(t("al"), 0, 5, 1)
+    su = st.slider(t("su"), 0, 5, 0)
+    bgr = st.number_input(t("bgr"), 70, 490, 120)
+    bu = st.number_input(t("bu"), 1.0, 200.0, 50.0)
+    sc = st.number_input(t("sc"), 0.1, 15.0, 1.2)
+    sod = st.number_input(t("sod"), 120.0, 150.0, 135.0)
+    pot = st.number_input(t("pot"), 2.0, 7.0, 4.5)
+    hemo = st.number_input(t("hemo"), 5.0, 20.0, 13.5)
+    pcv = st.number_input(t("pcv"), 20.0, 60.0, 41.0)
+    wc = st.number_input(t("wc"), 2000.0, 20000.0, 8500.0)
+    rc = st.number_input(t("rc"), 2.0, 6.5, 5.2)
+    rbc = st.selectbox(t("rbc"), ["normal", "abnormal"])
+    pc = st.selectbox(t("pc"), ["normal", "abnormal"])
+    pcc = st.selectbox(t("pcc"), ["present", "notpresent"])
+    ba = st.selectbox(t("ba"), ["present", "notpresent"])
+    htn = st.selectbox(t("htn"), ["yes", "no"])
+    dm = st.selectbox(t("dm"), ["yes", "no"])
+    cad = st.selectbox(t("cad"), ["yes", "no"])
+    appet = st.selectbox(t("appet"), ["good", "poor"])
+    pe = st.selectbox(t("pe"), ["yes", "no"])
+    ane = st.selectbox(t("ane"), ["yes", "no"])
 
-    st.markdown("### 💉 Clinical Values")
-    col1, col2 = st.columns(2)
-    with col1:
-        al = st.slider("Albumin", 0, 5, 1)
-        su = st.slider("Sugar", 0, 5, 0)
-        bgr = st.number_input("Blood Glucose Random", 70, 490, 120)
-        bu = st.number_input("Blood Urea", 1.0, 200.0, 50.0)
-        sc = st.number_input("Serum Creatinine", 0.1, 15.0, 1.2)
-        sod = st.number_input("Sodium", 120.0, 150.0, 135.0)
-    with col2:
-        pot = st.number_input("Potassium", 2.0, 7.0, 4.5)
-        hemo = st.number_input("Hemoglobin", 5.0, 20.0, 13.5)
-        pcv = st.number_input("Packed Cell Volume", 20.0, 60.0, 41.0)
-        wc = st.number_input("WBC Count", 2000.0, 20000.0, 8500.0)
-        rc = st.number_input("RBC Count", 2.0, 6.5, 5.2)
+    submitted = st.form_submit_button(t("predict"))
 
-    st.markdown("### 🔬 Microscopy & Conditions")
-    col3, col4, col5 = st.columns(3)
-    with col3:
-        rbc = st.selectbox("Red Blood Cells", ["normal", "abnormal"])
-        pc = st.selectbox("Pus Cell", ["normal", "abnormal"])
-    with col4:
-        pcc = st.selectbox("Pus Cell Clumps", ["present", "notpresent"])
-        ba = st.selectbox("Bacteria", ["present", "notpresent"])
-    with col5:
-        htn = st.selectbox("Hypertension", ["yes", "no"])
-        dm = st.selectbox("Diabetes Mellitus", ["yes", "no"])
-        cad = st.selectbox("Coronary Artery Disease", ["yes", "no"])
-        appet = st.selectbox("Appetite", ["good", "poor"])
-        pe = st.selectbox("Pedal Edema", ["yes", "no"])
-        ane = st.selectbox("Anemia", ["yes", "no"])
-
-    st.text_area("🩺 Doctor's Notes", placeholder="Enter any additional clinical observations here...", key="notes")
-
-    submitted = st.form_submit_button("🔍 Predict")
-
-# -------------------- PREDICTION --------------------
 if submitted:
     input_data = pd.DataFrame([[age, bp, sg, al, su, rbc, pc, pcc, ba, bgr,
                                  bu, sc, sod, pot, hemo, pcv, wc, rc, htn, dm,
                                  cad, appet, pe, ane]],
-                               columns=['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr',
-                                        'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc',
-                                        'htn', 'dm', 'cad', 'appet', 'pe', 'ane'])
-
+                               columns=X.columns)
     input_data.replace(encode_map, inplace=True)
     input_scaled = scaler.transform(input_data)
     prediction = model.predict_proba(input_scaled)[0][1] * 100
 
-    st.markdown("---")
-    st.subheader("🔔 Prediction Result")
-    st.metric("Kidney Disease Risk", f"{prediction:.2f}%")
+    st.subheader("🔔 " + t("risk"))
+    st.metric(t("risk"), f"{prediction:.2f}%")
 
     if prediction < 20:
-        st.success("🟢 Low Risk — Regular monitoring advised.")
-        st.info("📌 Maintain a healthy diet, stay hydrated, and get annual checkups.")
+        st.success(t("low"))
     elif prediction < 60:
-        st.warning("🟡 Moderate Risk — Recommend follow-up tests.")
-        st.info("📌 Schedule a nephrologist appointment. Monitor blood sugar and pressure closely.")
+        st.warning(t("med"))
     else:
-        st.error("🔴 High Risk — Urgent medical attention recommended.")
-        st.warning("🚨 Consider ultrasound, GFR tests, and specialist care ASAP.")
-
-# -------------------- FOOTER --------------------
-st.markdown("""
-    <hr>
-    <div style='text-align: center;'>
-        <big>Made with ❤️ | Kamboji Pranav The King &copy; All ways</big>
-    </div>
-""", unsafe_allow_html=True)
+        st.error(t("high"))
+        st.info(t("precaution"))
